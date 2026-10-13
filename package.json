@@ -1,0 +1,101 @@
+{
+  "name": "form-honeypot-guard",
+  "version": "1.0.0",
+  "description": "Block form spam bots without a captcha: honeypot + signed timing tokens + JS proof + rate limiting. Webpack 5 and Vite plugins, a <2 kB client, and Express, Fastify, Next.js and Fetch API (Netlify/Vercel/Cloudflare) server helpers. Zero dependencies.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./client": {
+      "types": "./src/client.d.ts",
+      "default": "./src/client.js"
+    },
+    "./runtime": "./src/runtime.js",
+    "./webpack": {
+      "types": "./src/webpack.d.ts",
+      "require": "./src/webpack.cjs",
+      "import": "./src/webpack.js"
+    },
+    "./vite": {
+      "types": "./src/vite.d.ts",
+      "default": "./src/vite.js"
+    },
+    "./check": {
+      "types": "./src/check.d.ts",
+      "default": "./src/check.js"
+    },
+    "./package.json": "./package.json",
+    "./config": {
+      "types": "./src/config.d.ts"
+    }
+  },
+  "bin": {
+    "form-honeypot-guard": "bin/form-honeypot-guard.js"
+  },
+  "files": [
+    "src",
+    "bin",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "peerDependencies": {
+    "vite": ">=4",
+    "webpack": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "webpack": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "express": "^4.22.3",
+    "fastify": "^4.29.1",
+    "html-webpack-plugin": "^5.6.8",
+    "jsdom": "^24.1.3",
+    "webpack": "^5.111.1"
+  },
+  "keywords": [
+    "honeypot",
+    "spam",
+    "form",
+    "anti-spam",
+    "captcha",
+    "captcha-alternative",
+    "bot",
+    "bot-protection",
+    "webpack",
+    "webpack-plugin",
+    "vite",
+    "vite-plugin",
+    "express",
+    "fastify",
+    "nextjs",
+    "rate-limit",
+    "hmac",
+    "security"
+  ],
+  "author": "Louis Wright <hello@louiswright.co.uk> (https://github.com/MrLouisWright)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrLouisWright/form-honeypot-guard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MrLouisWright/form-honeypot-guard/issues"
+  },
+  "homepage": "https://github.com/MrLouisWright/form-honeypot-guard#readme"
+}

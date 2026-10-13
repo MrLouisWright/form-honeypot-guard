@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Contact us</title>
+</head>
+<body>
+  <h1>Contact us</h1>
+  <form id="contact" data-guard method="post" action="/contact">
+    <label>Name <input name="name" required></label>
+    <label>Email <input name="email" type="email" required></label>
+    <label>Message <textarea name="message" required></textarea></label>
+    <button>Send</button>
+  </form>
+  <p id="status"></p>
+</body>
+</html>
