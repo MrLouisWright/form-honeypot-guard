@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-export interface FieldNames { honeypot: string; token: string; js: string; signals: string }
+export interface FieldNames { honeypot: string; token: string; js: string; signals: string; pow: string }
+export interface PowOptions { maxnumber?: number; field?: string; require?: boolean | 'soft' }
 export interface Manifest { name?: string; version?: number; buildId?: string; forms?: string; fields: FieldNames; minTime?: number; maxAge?: number; requireJs?: boolean | 'soft'; secretEnv?: string; tokenEndpoint?: string }
 
 export interface ContentOptions { maxLinks?: number; nameFields?: string[]; keywords?: string[]; scripts?: string[] | null; scriptRatio?: number; ignore?: string[] }
@@ -28,9 +29,12 @@ export interface VerifyOptions {
   content?: ContentOptions | false;
   nonceStore?: NonceStore;
   tokenEndpoint?: string;
+  /** Altcha-style proof-of-work (opt-in). */
+  pow?: boolean | PowOptions;
+  powMaxAge?: number;
   now?: number;
 }
-export type Reason = 'honeypot' | 'token-missing' | 'token-invalid' | 'token-expired' | 'token-replayed' | 'too-fast' | 'js-missing' | 'signals-missing' | 'no-interaction' | 'content-links' | 'content-url-in-name' | 'content-keywords' | 'content-charset' | 'rate-limited';
+export type Reason = 'honeypot' | 'token-missing' | 'token-invalid' | 'token-expired' | 'token-replayed' | 'too-fast' | 'js-missing' | 'signals-missing' | 'no-interaction' | 'content-links' | 'content-url-in-name' | 'content-keywords' | 'content-charset' | 'rate-limited' | 'pow-missing' | 'pow-invalid' | 'pow-expired';
 export interface VerifyResult { ok: boolean; reasons: Reason[]; score: number; retryAfter?: number; rateLimited?: boolean }
 type FieldsInput = Record<string, unknown> | FormData | URLSearchParams | Map<string, unknown>;
 
@@ -84,3 +88,9 @@ export function createFetchGuard(opts?: GuardOptions): (request: Request, ctx?: 
 export function withFormGuard<C = any>(handler: (request: Request, ctx: C, guard: FetchGuardResult) => Response | Promise<Response>, opts?: GuardOptions): (request: Request, ctx: C) => Promise<Response>;
 export function nextRoute<C = any>(handler: (request: Request, ctx: C, guard: FetchGuardResult) => Response | Promise<Response>, opts?: GuardOptions): { GET: (request: Request, ctx: C) => Promise<Response>; POST: (request: Request, ctx: C) => Promise<Response> };
 export function withFormGuardApi(handler: (req: any, res: any) => any, opts?: GuardOptions): (req: any, res: any) => Promise<void>;
+
+export * from './pow.d.ts';
+export * from './adapters.d.ts';
+export { sveltekitHandle, sveltekitAction } from './sveltekit.d.ts';
+export { remixAction, remixTokenLoader } from './remix.d.ts';
+export { astroPost, astroGet, astroRoute } from './astro.d.ts';

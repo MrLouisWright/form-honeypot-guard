@@ -1,7 +1,8 @@
 export interface ClientOptions {
   /** CSS selector or 'all'. Default 'form[data-guard]'. */
   forms?: string;
-  honeypot?: string; token?: string; js?: string; signals?: string;
+  honeypot?: string; token?: string; js?: string; signals?: string; pow?: string;
+  powEnabled?: boolean;
   tokenEndpoint?: string;
   fetchToken?: boolean;
   jsProof?: boolean;

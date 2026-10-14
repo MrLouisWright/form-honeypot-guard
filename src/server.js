@@ -2,22 +2,14 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { MemoryNonceStore, MemoryRateLimitStore } from './stores.js';
 import { checkContent } from './content.js';
+import { DEFAULT_FIELDS, DEFAULTS } from './constants.js';
+import { getSecret, generateSecret } from './secret.js';
+import { verifyPow, resolvePow } from './pow.js';
 
-export const DEFAULT_FIELDS = Object.freeze({ honeypot: 'website_url', token: 'fg_token', js: 'fg_js', signals: 'fg_sig' });
-export const DEFAULTS = Object.freeze({
-  secretEnv: 'FORM_GUARD_SECRET',
-  minTime: 3000,
-  maxAge: 2 * 60 * 60 * 1000,
-  requireToken: true,
-  requireJs: true,
-  minInteractions: 1,
-  threshold: 5,
-  content: {},
-  tokenEndpoint: '/__form-guard/token',
-});
+export { DEFAULT_FIELDS, DEFAULTS };
 /** Reasons that fail a submission outright, whatever the score. */
-export const HARD_REASONS = new Set(['honeypot', 'token-missing', 'token-invalid', 'token-expired', 'token-replayed', 'too-fast', 'js-missing']);
-const WEIGHTS = { 'no-interaction': 2, 'signals-missing': 1, 'token-missing': 10, 'js-missing': 10 };
+export const HARD_REASONS = new Set(['honeypot', 'token-missing', 'token-invalid', 'token-expired', 'token-replayed', 'too-fast', 'js-missing', 'pow-missing', 'pow-invalid', 'pow-expired']);
+const WEIGHTS = { 'no-interaction': 2, 'signals-missing': 1, 'token-missing': 10, 'js-missing': 10, 'pow-missing': 10 };
 
 const b64u = (buf) => Buffer.from(buf).toString('base64url');
 const defaultNonces = new MemoryNonceStore();
@@ -32,22 +24,17 @@ export function loadManifest(fileOrObject) {
 /** Merge user options with defaults and an optional manifest (manifest < explicit options). */
 export function resolveOptions(opts = {}) {
   const m = opts.manifest ? loadManifest(opts.manifest) : {};
-  const o = { ...DEFAULTS, ...pick(m, ['minTime', 'maxAge', 'secretEnv', 'tokenEndpoint', 'requireJs']), ...strip(opts) };
+  const o = { ...DEFAULTS, ...pick(m, ['minTime', 'maxAge', 'secretEnv', 'tokenEndpoint', 'requireJs', 'pow']), ...strip(opts) };
   o.fields = { ...DEFAULT_FIELDS, ...(m.fields || {}), ...(opts.fields || {}) };
+  const powCfg = resolvePow(o);
+  if (powCfg?.field) o.fields.pow = powCfg.field;
   o.nonceStore = opts.nonceStore || defaultNonces;
   return o;
 }
 const pick = (o, keys) => Object.fromEntries(keys.filter((k) => o[k] !== undefined).map((k) => [k, o[k]]));
 const strip = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));
 
-export function getSecret(o = {}) {
-  const s = o.secret ?? process.env[o.secretEnv || DEFAULTS.secretEnv];
-  if (!s || String(s).length < 16) throw new Error(`form-honeypot-guard: set a secret of at least 16 chars in $${o.secretEnv || DEFAULTS.secretEnv} (generate one with: npx form-honeypot-guard secret)`);
-  return String(s);
-}
-
-/** Generate a random HMAC secret (base64url, 32 bytes). */
-export const generateSecret = (bytes = 32) => b64u(randomBytes(bytes));
+export { getSecret, generateSecret } from './secret.js';
 
 const sign = (secret, data) => b64u(createHmac('sha256', secret).update(data).digest());
 
@@ -138,7 +125,13 @@ export async function verify(input, opts = {}) {
     for (const { reason, weight } of checkContent(f, { ...o.content, ignore })) add(reason, weight);
   }
 
-  const ok = !reasons.some((r) => HARD_REASONS.has(r) && !(r === 'token-missing' && !o.requireToken) && !(r === 'js-missing' && o.requireJs !== true)) && score < o.threshold;
+  const powResult = verifyPow(f[F.pow], o, now);
+  if (!powResult.skipped) {
+    if (!powResult.ok) add(powResult.reason);
+    else if (powResult.soft) add(powResult.reason, 2);
+  }
+
+  const ok = !reasons.some((r) => HARD_REASONS.has(r) && !(r === 'token-missing' && !o.requireToken) && !(r === 'js-missing' && o.requireJs !== true) && !(r === 'pow-missing' && resolvePow(o)?.require !== true)) && score < o.threshold;
   return { ok, reasons, score };
 }
 

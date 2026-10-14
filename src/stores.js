@@ -1,8 +1,13 @@
 /**
  * In-memory stores. Both implement small async interfaces so you can swap in Redis etc.
+ * See `form-honeypot-guard/adapters` for Redis, Upstash, Cloudflare KV and Durable Object helpers.
  *
- * NonceStore:     use(nonce, ttlMs) -> Promise<boolean>  (true the first time, false on replay)
- * RateLimitStore: hit(key, windowMs, limit, now) -> Promise<{ count, retryAfterMs }>
+ * @typedef {object} NonceStore
+ * @property {(nonce: string, ttlMs: number) => Promise<boolean>|boolean} use true the first time, false on replay
+ *
+ * @typedef {object} RateLimitStore
+ * @property {(key: string, windowMs: number, limit: number, now?: number) => Promise<{ count: number, retryAfterMs: number }>} hit
+ * @property {(key: string) => Promise<void>} [reset]
  */
 export class MemoryNonceStore {
   constructor({ max = 10000 } = {}) { this.max = max; this.map = new Map(); }

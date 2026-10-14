@@ -1,4 +1,5 @@
 import { verify, createToken, resolveOptions, createRateLimiter, toFields } from './server.js';
+import { createPowChallenge } from './pow.js';
 import { clientIp } from './ip.js';
 
 /**
@@ -41,7 +42,12 @@ export function createGuard(options = {}) {
     return { status: 400, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ok: false, error: 'Submission rejected', reasons: result.reasons }) };
   }
 
-  const tokenResponse = () => ({ status: 200, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify({ token: createToken(o) }) });
+  const tokenResponse = (now = Date.now()) => {
+    const body = { token: createToken(o, now) };
+    const pow = createPowChallenge(o, now);
+    if (pow) body.pow = pow;
+    return { status: 200, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }, body: JSON.stringify(body) };
+  };
 
   return { options: o, check, blockResponse, tokenResponse, rateLimiter: rl };
 }

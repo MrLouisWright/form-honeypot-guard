@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — 2026-10-14
+
+- **Proof-of-work (Altcha-style, opt-in):** `pow: true | { maxnumber, require, field }` on server helpers; token endpoint returns a signed challenge; optional `form-honeypot-guard/runtime-pow` client add-on (privacy-friendly, no captcha vendor).
+- **Distributed stores:** `form-honeypot-guard/adapters` — Redis, Upstash, Cloudflare KV and Durable Object helpers that accept user-provided clients (zero hard runtime deps).
+- **Framework helpers:** SvelteKit (`sveltekitHandle`, `sveltekitAction`), Remix (`remixAction`, `remixTokenLoader`), Astro (`astroPost`, `astroRoute`), React (`GuardedForm`, `useFormGuardInit`) under `form-honeypot-guard/react` (optional `react` peer).
+- **Dual package build:** CommonJS `dist/*.cjs` for `require()` alongside ESM `src/*.js`; types synced to `dist/*.d.ts` via `npm run build`.
+- **CI:** import + require smoke tests; release job runs `npm run build` before publish with provenance.
+
 ## 1.0.2 — 2026-10-13
 
 - CI: harden workflows (actions pinned to SHAs, least-privilege permissions, persist-credentials: false)

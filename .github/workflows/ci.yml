@@ -16,3 +16,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm pack --dry-run
+      - name: CJS smoke (Node 22)
+        if: matrix.node == 22
+        run: node -e "require('form-honeypot-guard'); require('form-honeypot-guard/check')"
