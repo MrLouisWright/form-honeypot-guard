@@ -1,20 +1,23 @@
 {
   "name": "form-honeypot-guard",
-  "version": "1.0.2",
-  "description": "Block form spam bots without a captcha: honeypot + signed timing tokens + JS proof + rate limiting. Webpack 5 and Vite plugins, a <2 kB client, and Express, Fastify, Next.js and Fetch API (Netlify/Vercel/Cloudflare) server helpers. Zero dependencies.",
+  "version": "1.1.0",
+  "description": "Block form spam bots without a captcha: honeypot + signed timing tokens + JS proof + optional Altcha-style proof-of-work + rate limiting. Webpack 5 and Vite plugins, a <2 kB client, Express/Fastify/Next/SvelteKit/Remix/Astro helpers, and a React wrapper. Zero runtime dependencies.",
   "type": "module",
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
-      "default": "./src/index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./src/index.js",
+      "require": "./dist/index.cjs"
     },
     "./client": {
-      "types": "./src/client.d.ts",
-      "default": "./src/client.js"
+      "types": "./dist/client.d.ts",
+      "import": "./src/client.js",
+      "require": "./dist/client.cjs"
     },
     "./runtime": "./src/runtime.js",
+    "./runtime-pow": "./src/runtime-pow.js",
     "./webpack": {
       "types": "./src/webpack.d.ts",
       "require": "./src/webpack.cjs",
@@ -22,11 +25,42 @@
     },
     "./vite": {
       "types": "./src/vite.d.ts",
-      "default": "./src/vite.js"
+      "import": "./src/vite.js"
     },
     "./check": {
-      "types": "./src/check.d.ts",
-      "default": "./src/check.js"
+      "types": "./dist/check.d.ts",
+      "import": "./src/check.js",
+      "require": "./dist/check.cjs"
+    },
+    "./adapters": {
+      "types": "./dist/adapters.d.ts",
+      "import": "./src/adapters.js",
+      "require": "./dist/adapters.cjs"
+    },
+    "./pow": {
+      "types": "./dist/pow.d.ts",
+      "import": "./src/pow.js",
+      "require": "./dist/pow.cjs"
+    },
+    "./sveltekit": {
+      "types": "./dist/sveltekit.d.ts",
+      "import": "./src/sveltekit.js",
+      "require": "./dist/sveltekit.cjs"
+    },
+    "./remix": {
+      "types": "./dist/remix.d.ts",
+      "import": "./src/remix.js",
+      "require": "./dist/remix.cjs"
+    },
+    "./astro": {
+      "types": "./dist/astro.d.ts",
+      "import": "./src/astro.js",
+      "require": "./dist/astro.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./src/react.js",
+      "require": "./dist/react.cjs"
     },
     "./package.json": "./package.json",
     "./config": {
@@ -38,6 +72,7 @@
   },
   "files": [
     "src",
+    "dist",
     "bin",
     "README.md",
     "CHANGELOG.md",
@@ -47,13 +82,19 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "build": "node scripts/build.mjs && node scripts/generate-types.mjs",
+    "prepublishOnly": "npm run build",
+    "test": "npm run build && node --test test/*.test.js"
   },
   "peerDependencies": {
+    "react": ">=17",
     "vite": ">=4",
     "webpack": "^5.0.0"
   },
   "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
     "webpack": {
       "optional": true
     },
@@ -62,10 +103,13 @@
     }
   },
   "devDependencies": {
+    "esbuild": "^0.25.0",
     "express": "^4.22.3",
     "fastify": "^4.29.1",
     "html-webpack-plugin": "^5.6.8",
     "jsdom": "^24.1.3",
+    "react": "^19.0.0",
+    "typescript": "^5.8.2",
     "webpack": "^5.111.1"
   },
   "keywords": [
@@ -75,6 +119,8 @@
     "anti-spam",
     "captcha",
     "captcha-alternative",
+    "altcha",
+    "proof-of-work",
     "bot",
     "bot-protection",
     "webpack",
@@ -84,6 +130,13 @@
     "express",
     "fastify",
     "nextjs",
+    "sveltekit",
+    "remix",
+    "astro",
+    "react",
+    "redis",
+    "upstash",
+    "cloudflare",
     "rate-limit",
     "hmac",
     "security"

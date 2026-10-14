@@ -15,8 +15,9 @@ Block form spam bots **without a captcha**. It layers cheap checks that most bot
 - light **interaction signals**: keypress, pointer and focus counts
 - optional **content heuristics** (link spam, URLs in name fields, spam keywords, unexpected scripts)
 - **sliding-window rate limiting** per IP (and optionally per email or fingerprint), with a correct `429` and `Retry-After`
+- optional **proof-of-work** (Altcha-style, privacy-friendly — no captcha vendor) for stronger bot resistance
 
-The **webpack plugin** is the main way in. It adds the honeypot markup to your built HTML at build time, injects the tiny client runtime, randomises field names on every build and writes a manifest so client and server use the same names. There's also a Vite plugin, plus server helpers for Express/Connect, Fastify, Next.js and any Web Fetch runtime (Netlify, Vercel, Cloudflare, Deno, Bun). Zero runtime dependencies, Node ≥ 18, ESM with a CommonJS build of the webpack plugin, hand-written TypeScript types.
+The **webpack plugin** is the main way in. It adds the honeypot markup to your built HTML at build time, injects the tiny client runtime, randomises field names on every build and writes a manifest so client and server use the same names. There's also a Vite plugin, plus server helpers for Express/Connect, Fastify, Next.js, SvelteKit, Remix, Astro and any Web Fetch runtime (Netlify, Vercel, Cloudflare, Deno, Bun), plus an optional React wrapper. Zero runtime dependencies, Node ≥ 18, **dual ESM + CommonJS** (`import` / `require`), TypeScript types in `dist/*.d.ts` (generated in CI via `npm run build`). Tests live under [`test/`](test/) and run in [GitHub Actions CI](.github/workflows/ci.yml).
 
 ## Install
 
@@ -147,6 +148,55 @@ useEffect(() => { init({ forms: 'form[data-guard]', tokenEndpoint: '/api/contact
 
 For Vue, use `onMounted(() => init())` and `ref` on the form, or `:ref="guardRef"`.
 
+### React component
+
+```jsx
+import { useRef } from 'react';
+import { GuardedForm } from 'form-honeypot-guard/react';
+
+const formRef = useRef(null);
+<GuardedForm ref={formRef} guardOptions={{ tokenEndpoint: '/api/contact' }} onSubmit={async (e) => {
+  e.preventDefault();
+  await fetch('/api/contact', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(await formRef.current.json()) });
+}}>
+  …
+</GuardedForm>
+```
+
+Or keep using `init()` + `guardRef` from `form-honeypot-guard/client` (no React peer required).
+
+## SvelteKit
+
+`hooks.server.js`:
+
+```js
+import { sveltekitHandle } from 'form-honeypot-guard/sveltekit';
+export const handle = sveltekitHandle({ manifest: 'build/form-guard.manifest.json', paths: ['/contact'] });
+```
+
+Form action:
+
+```js
+import { sveltekitAction } from 'form-honeypot-guard/sveltekit';
+export const actions = {
+  default: sveltekitAction(async (event, guard) => { /* guard.fields */ }),
+};
+```
+
+## Remix
+
+```js
+import { remixAction } from 'form-honeypot-guard/remix';
+export const action = remixAction(async ({ request, guard }) => json({ ok: true }));
+```
+
+## Astro
+
+```js
+import { astroRoute } from 'form-honeypot-guard/astro';
+export const { GET, POST } = astroRoute(async ({ request, guard }) => new Response('Thanks'));
+```
+
 ## Fastify
 
 ```js
@@ -208,6 +258,7 @@ const { ok, reasons, score } = await verify(fields /* object | FormData | URLSea
 | No keypress/pointer/focus | Headless scripts that set values directly (scored) | `no-interaction`, `signals-missing` |
 | Content heuristics | Link spam, SEO spam (scored) | `content-*` |
 | Sliding-window rate limit | Floods | `rate-limited` (429) |
+| Proof-of-work (opt-in) | Headless farms without CPU work | `pow-missing`, `pow-invalid`, `pow-expired` |
 
 Token format: `<issuedAtMs>.<nonce>.<HMAC-SHA256(secret, issuedAtMs.nonce)>`, signed with `node:crypto` and compared in constant time. The JS proof is a value derived from the token that the runtime writes in the browser.
 
@@ -265,30 +316,37 @@ The Vite plugin (`formGuard(options)`) takes the same options apart from `inline
 | `ipHeader` | none | e.g. `'cf-connecting-ip'`. Only read when `trustProxy` is set |
 | `paths` / `methods` | all / `['POST']` | What to guard |
 | `onBlock` | none | `(result, ctx) => {}` |
+| `pow` | `false` | `true` or `{ maxnumber, require: true \| 'soft', field }` — Altcha-style PoW on the token endpoint |
+| `powMaxAge` | `maxAge` | Challenge TTL for PoW payloads |
 
 ### Client (`init(options)` or `data-form-guard='{…}'`)
 
-`forms`, `honeypot`, `token`, `js`, `signals`, `tokenEndpoint`, `fetchToken` (`true`), `jsProof` (`true`), `observe` (`true`, enhances forms added later via MutationObserver). Helpers: `enhance(form)`, `formData(form)`, `json(form)`, `guardRef(el)`.
+`forms`, `honeypot`, `token`, `js`, `signals`, `pow`, `tokenEndpoint`, `fetchToken` (`true`), `jsProof` (`true`), `observe` (`true`, enhances forms added later via MutationObserver). Helpers: `enhance(form)`, `formData(form)`, `json(form)`, `guardRef(el)`.
 
-### Redis stores (example, no dependency)
+When `pow` is enabled on the server, load the optional solver after the main runtime:
+
+```html
+<script defer src="/form-guard.js"></script>
+<script defer src="/node_modules/form-honeypot-guard/src/runtime-pow.js"></script>
+```
+
+### Distributed stores (`form-honeypot-guard/adapters`)
+
+Pass your own Redis, Upstash, Cloudflare KV or Durable Object client — nothing is bundled.
 
 ```js
 import { createClient } from 'redis';
-const redis = createClient(); await redis.connect();
+import { expressGuard } from 'form-honeypot-guard';
+import { redisNonceStore, redisRateLimitStore } from 'form-honeypot-guard/adapters';
 
-const nonceStore = { async use(nonce, ttlMs) { return (await redis.set(`fg:n:${nonce}`, '1', { NX: true, PX: ttlMs })) === 'OK'; } };
-const rateStore = {
-  async hit(key, windowMs, limit, now = Date.now()) {
-    const k = `fg:rl:${key}`;
-    const [, , count, oldest] = await redis.multi()
-      .zRemRangeByScore(k, 0, now - windowMs).zAdd(k, { score: now, value: `${now}:${Math.random()}` })
-      .zCard(k).zRangeWithScores(k, -(limit + 1), -(limit + 1)).exec();
-    await redis.pExpire(k, windowMs);
-    return { count, retryAfterMs: count > limit && oldest[0] ? oldest[0].score + windowMs - now : 0 };
-  },
-};
-app.use(expressGuard({ nonceStore, rateLimit: { store: rateStore } }));
+const redis = createClient(); await redis.connect();
+app.use(expressGuard({
+  nonceStore: redisNonceStore(redis),
+  rateLimit: { store: redisRateLimitStore(redis), limit: 5, windowMs: 60_000 },
+}));
 ```
+
+Also: `upstashNonceStore`, `upstashRateLimitStore`, `cloudflareKvNonceStore`, `cloudflareKvRateLimitStore`, `durableObjectNonceStore`, `durableObjectRateLimitStore`.
 
 Use shared stores whenever you run more than one server instance.
 
@@ -339,7 +397,7 @@ dist/contact.html (2 forms)
 
 ## API
 
-`verify`, `createToken`, `parseToken`, `jsProof`, `issueFields`, `cleanFields`, `toFields`, `loadManifest`, `generateSecret`, `createRateLimiter`, `MemoryNonceStore`, `MemoryRateLimitStore`, `checkContent`, `clientIp`, `createGuard`, `expressGuard`/`connectGuard`, `fastifyGuard`, `createFetchGuard`, `withFormGuard`, `nextRoute`, `withFormGuardApi` from `form-honeypot-guard`. Also `form-honeypot-guard/client`, `/runtime`, `/webpack` (ESM + CJS), `/vite`, `/check`. Types ship in `src/*.d.ts`.
+Main export: `verify`, guards, PoW helpers (`createPowChallenge`, `verifyPow`, …), stores, and framework adapters listed above. Subpaths: `form-honeypot-guard/client`, `/runtime`, `/runtime-pow`, `/adapters`, `/pow`, `/react`, `/sveltekit`, `/remix`, `/astro`, `/webpack` (ESM + CJS), `/vite`, `/check`. All Node entry points support **`require()`** via `dist/*.cjs` after `npm run build` (CI runs this automatically).
 
 ## Limitations
 
