@@ -424,6 +424,10 @@ Then create a GitHub release from the new tag. `.github/workflows/release.yml` r
 - [bundle-secret-guard](https://www.npmjs.com/package/bundle-secret-guard): fail the build when secrets ship to the browser.
 - **form-honeypot-guard**: block form spam without a captcha.
 
+## Support
+
+If this project is useful to you, you can support its development with a donation: [Buy me a coffee](https://donate.stripe.com/aFa00lek3cvX4Ds2Fk9EI0b). It helps keep these tools maintained, documented and free for everyone.
+
 ## License
 
 MIT © Louis Wright ([Louis Wright](https://github.com/MrLouisWright))
