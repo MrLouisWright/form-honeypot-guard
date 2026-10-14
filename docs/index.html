@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>form-honeypot-guard · Block form spam bots without a captcha.</title>
+<meta name="description" content="Block form spam bots without a captcha. Layers cheap checks that most bots fail and real people never notice: an accessible honeypot, an HMAC-signed timing token, a JS proof, interaction signals, content heuristics, rate limiting and optional Altcha-style proof-of-work. webpack and Vite plugins, a &lt;">
+<meta name="theme-color" content="#07090c">
+<link rel="canonical" href="https://mrlouiswright.github.io/form-honeypot-guard/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="form-honeypot-guard: Block form spam bots without a captcha.">
+<meta property="og:description" content="Block form spam bots without a captcha. Layers cheap checks that most bots fail and real people never notice: an accessible honeypot, an HMAC-signed timing token, a JS proof, interaction signals, content heuristics, rate limiting and optional Altcha-style proof-of-work. webpack and Vite plugins, a &lt;">
+<meta property="og:url" content="https://mrlouiswright.github.io/form-honeypot-guard/">
+<meta property="og:image" content="https://mrlouiswright.github.io/form-honeypot-guard/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="form-honeypot-guard: Block form spam bots without a captcha.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="form-honeypot-guard">
+<meta name="twitter:description" content="Block form spam bots without a captcha.">
+<meta name="twitter:image" content="https://mrlouiswright.github.io/form-honeypot-guard/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>:root{--accent:#a3e635;--accent-2:#4d7c0f}</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="./"><span class="brand-g" aria-hidden="true">F</span>form-honeypot-guard</a>
+    <nav aria-label="Primary"><ul>
+      <li><a href="#features">Features</a></li><li><a href="#usage">Usage</a></li><li><a href="#ci">CI</a></li><li><a href="#options">Options</a></li>
+      <li><a class="gh" href="https://github.com/MrLouisWright/form-honeypot-guard">GitHub</a></li>
+    </ul></nav>
+  </div>
+</header>
+<main id="main">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="dot" aria-hidden="true"></span> npm package · MIT · Node ≥ 18</p>
+      <h1>form-honeypot-guard</h1>
+      <p class="tagline">Block form spam bots without a captcha.</p>
+      <p class="lede">Layers cheap checks that most bots fail and real people never notice: an accessible honeypot, an HMAC-signed timing token, a JS proof, interaction signals, content heuristics, rate limiting and optional Altcha-style proof-of-work. webpack and Vite plugins, a &lt;2 kB client, and server helpers for Express, Fastify, Next.js, SvelteKit, Remix, Astro and any Fetch runtime.</p>
+      <div class="install">
+        <code id="install-cmd"><span class="prompt" aria-hidden="true">$</span> npm i form-honeypot-guard</code>
+        <button class="copy" type="button" data-copy="npm i form-honeypot-guard" aria-label="Copy install command">Copy</button>
+        <span class="sr-only" role="status" aria-live="polite" id="copy-status"></span>
+      </div>
+      <div class="ctas">
+        <a class="btn primary" href="https://github.com/MrLouisWright/form-honeypot-guard#readme">Read the docs</a>
+        <a class="btn" href="https://www.npmjs.com/package/form-honeypot-guard">View on npm</a>
+        <a class="btn" href="https://github.com/MrLouisWright/form-honeypot-guard">Source on GitHub</a>
+      </div>
+      <div class="badges">
+        <a href="https://www.npmjs.com/package/form-honeypot-guard"><img src="https://img.shields.io/npm/v/form-honeypot-guard.svg?style=flat-square&amp;color=111" alt="npm version of form-honeypot-guard" height="20"></a>
+        <a href="https://github.com/MrLouisWright/form-honeypot-guard/actions/workflows/ci.yml"><img src="https://github.com/MrLouisWright/form-honeypot-guard/actions/workflows/ci.yml/badge.svg" alt="CI status" height="20"></a>
+        <a href="https://github.com/MrLouisWright/form-honeypot-guard/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License: MIT" height="20"></a>
+        <a href="https://github.com/MrLouisWright/form-honeypot-guard"><img src="https://img.shields.io/github/stars/MrLouisWright/form-honeypot-guard?style=flat-square" alt="GitHub stars for form-honeypot-guard" height="20"></a>
+      </div>
+    </div>
+    <figure class="term" aria-label="Example terminal session running form-honeypot-guard">
+      <div class="term-bar"><span></span><span></span><span></span><em>~/project — zsh</em></div>
+      <pre class="term-body" data-cmd="npx form-honeypot-guard check dist"><span class="ln cmd"><span class="prompt">$</span> <span class="typed">npx form-honeypot-guard check dist</span><span class="caret" aria-hidden="true"></span></span><span class="out"><span class="ln dim">&nbsp;</span><span class="ln b">dist/contact.html (2 forms)</span><span class="ln e">  ✖ error POST form without a honeypot [fg/no-honeypot]</span><span class="ln dim">          form at line 1 (action=/c) posts without a honeypot field</span><span class="ln f">          fix: add data-guard to the form and build with FormGuardPlugin</span><span class="ln e">  ✖ error GET form sends personal data in the URL [fg/get-personal-data]</span><span class="ln dim">          form at line 1 (action=/news) uses GET and sends email in the query string</span><span class="ln f">          fix: add method=&quot;post&quot;</span></span></pre>
+      <figcaption class="sr-only">Sample output adapted from the form-honeypot-guard README.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec" id="problem">
+  <div class="wrap narrow">
+    <h2><span class="h-idx">01</span> The problem</h2>
+    <p class="big">Captchas cost you conversions and accessibility, and most contact-form spam comes from dumb, untargeted bots that a few invisible checks would stop.</p>
+    <p class="big">form-honeypot-guard adds those checks at build time and verifies them on the server: bots that fill every field, submit instantly, skip JavaScript, replay tokens or flood you get rejected, and people never see a puzzle.</p>
+  </div>
+</section>
+
+<section class="sec" id="features">
+  <div class="wrap">
+    <h2><span class="h-idx">02</span> Features</h2>
+    <div class="grid">
+      <article class="card"><span class="card-i" aria-hidden="true">01</span><h3>Accessible honeypot</h3><p>Off-screen, aria-hidden, tabindex=&quot;-1&quot; and autocomplete=&quot;off&quot;, with a randomised, realistic name per build.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">02</span><h3>Signed timing tokens</h3><p>HMAC-SHA256 tokens reject submissions that are too fast, expired, tampered with or replayed.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">03</span><h3>JS proof &amp; signals</h3><p>A proof only a real browser writes, plus keypress, pointer and focus counts.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">04</span><h3>Rate limiting</h3><p>Sliding window per IP, email or fingerprint, with a correct 429 and Retry-After.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">05</span><h3>Optional proof-of-work</h3><p>Altcha-style, privacy-friendly PoW with no captcha vendor.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">06</span><h3>Build-time plugins</h3><p>webpack 5 and Vite plugins add the markup to built HTML and inject the ~1.3 kB gzipped runtime.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">07</span><h3>Framework helpers</h3><p>Express, Fastify, Next.js, SvelteKit, Remix, Astro, Web Fetch runtimes, and a React wrapper.</p></article>
+      <article class="card"><span class="card-i" aria-hidden="true">08</span><h3>Distributed stores</h3><p>Bring your own Redis, Upstash, Cloudflare KV or Durable Object client. Nothing bundled.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="usage">
+  <div class="wrap">
+    <h2><span class="h-idx">03</span> Usage</h2>
+    <div class="usage">
+      <div class="u"><p class="u-t"># Generate an HMAC secret</p><pre><code><span class="prompt" aria-hidden="true">$</span> npx form-honeypot-guard secret</code></pre></div>
+      <div class="u"><p class="u-t"># Audit built HTML forms</p><pre><code><span class="prompt" aria-hidden="true">$</span> npx form-honeypot-guard check dist</code></pre></div>
+      <div class="u"><p class="u-t"># Strict audit (warnings fail)</p><pre><code><span class="prompt" aria-hidden="true">$</span> npx form-honeypot-guard check dist --strict</code></pre></div>
+      <div class="u"><p class="u-t"># JSON output</p><pre><code><span class="prompt" aria-hidden="true">$</span> npx form-honeypot-guard check dist --json</code></pre></div>
+    </div>
+    <h3 class="sub">Protect an Express route</h3>
+    <pre class="code"><code>import express from 'express';
+import { expressGuard, cleanFields } from 'form-honeypot-guard';
+
+const app = express();
+app.use(express.urlencoded({ extended: false }));
+app.use(expressGuard({ manifest: 'server/form-guard.manifest.json', paths: ['/contact'] }));
+app.post('/contact', (req, res) =&gt; {
+  sendEmail(cleanFields(req.body, { manifest: 'server/form-guard.manifest.json' }));
+  res.redirect('/thanks');
+});</code></pre>
+  </div>
+</section>
+
+<section class="sec" id="ci">
+  <div class="wrap">
+    <h2><span class="h-idx">04</span> Audit forms in CI</h2>
+    <pre class="code yaml"><code># .github/workflows/forms.yml
+name: Forms
+on: [push, pull_request]
+jobs:
+  forms:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci &amp;&amp; npm run build
+      # exit 1 if a built form is missing protection
+      - run: npx form-honeypot-guard check dist</code></pre>
+  </div>
+</section>
+
+<section class="sec" id="options">
+  <div class="wrap">
+    <h2><span class="h-idx">05</span> CLI commands &amp; key options</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th scope="col">Flag</th><th scope="col">Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>check [dir]</code></td><td>Audit built HTML forms (default: dist)</td></tr>
+        <tr><td><code>check --json</code></td><td>JSON output</td></tr>
+        <tr><td><code>check --strict</code></td><td>Warnings count as errors</td></tr>
+        <tr><td><code>secret [--env]</code></td><td>Print a new HMAC secret</td></tr>
+        <tr><td><code>forms (plugin)</code></td><td>Selector or 'all' (default 'form[data-guard]')</td></tr>
+        <tr><td><code>minTime / maxAge</code></td><td>3000 / 7200000 ms</td></tr>
+        <tr><td><code>requireJs</code></td><td>true, 'soft' (adds score only) or false</td></tr>
+        <tr><td><code>threshold (server)</code></td><td>Score at which a submission fails (default 5)</td></tr>
+        <tr><td><code>rateLimit (server)</code></td><td>{ limit: 5, windowMs: 60000, keys: ['ip'] } or false</td></tr>
+        <tr><td><code>silent (server)</code></td><td>Fake 200 {&quot;ok&quot;:true} for rejected bots; rate limits still return 429</td></tr>
+        <tr><td><code>pow (server)</code></td><td>true or { maxnumber, require: true | 'soft', field }</td></tr>
+        <tr><td><code>trustProxy (server)</code></td><td>true, a number of hops, or a list of proxy IPs</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Full reference, config file format and API in the <a href="https://github.com/MrLouisWright/form-honeypot-guard#readme">README</a>.</p>
+  </div>
+</section>
+
+<section class="sec more" id="more">
+  <div class="wrap">
+    <h2><span class="h-idx">06</span> More tools by Louis Wright</h2>
+    <div class="tools">
+<a class="tool" href="https://mrlouiswright.github.io/bundle-secret-guard/" style="--a:#f43f5e"><span class="tool-g" aria-hidden="true">S</span><span><strong>bundle-secret-guard</strong><small>Fail the build when secrets ship to the browser.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/cookie-sentinel/" style="--a:#fbbf24"><span class="tool-g" aria-hidden="true">K</span><span><strong>cookie-sentinel</strong><small>Audit the cookies your site sets before attackers do.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/csp-forge/" style="--a:#f59e0b"><span class="tool-g" aria-hidden="true">C</span><span><strong>csp-forge</strong><small>Generate a tight Content-Security-Policy from your built site.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/header-sentinel/" style="--a:#22d3ee"><span class="tool-g" aria-hidden="true">H</span><span><strong>header-sentinel</strong><small>Fail CI when deployed URLs ship weak HTTP security headers.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/license-sentinel/" style="--a:#60a5fa"><span class="tool-g" aria-hidden="true">⚖</span><span><strong>license-sentinel</strong><small>A license compliance gate for npm projects, plus CycloneDX/SPDX SBOMs and a NOTICES file.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/package-tripwire/" style="--a:#fb923c"><span class="tool-g" aria-hidden="true">P</span><span><strong>package-tripwire</strong><small>Fail CI when dependency changes look suspicious.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/sri-sentinel/" style="--a:#34d399"><span class="tool-g" aria-hidden="true">I</span><span><strong>sri-sentinel</strong><small>Subresource Integrity for your built site: generate, write and check it in CI.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/static-link-sentinel/" style="--a:#a78bfa"><span class="tool-g" aria-hidden="true">L</span><span><strong>static-link-sentinel</strong><small>Fail CI on broken links before you deploy.</small></span></a>
+<a class="tool" href="https://mrlouiswright.github.io/workflow-sentinel/" style="--a:#2dd4bf"><span class="tool-g" aria-hidden="true">W</span><span><strong>workflow-sentinel</strong><small>Catch insecure GitHub Actions workflows before they're merged.</small></span></a>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p>MIT © <a href="https://github.com/MrLouisWright">Louis Wright</a></p>
+    <p><a href="https://github.com/MrLouisWright/form-honeypot-guard">GitHub</a> · <a href="https://www.npmjs.com/package/form-honeypot-guard">npm</a> · <a href="https://github.com/MrLouisWright/form-honeypot-guard#readme">README</a></p>
+  </div>
+</footer>
+<script src="app.js" defer></script>
+</body>
+</html>
