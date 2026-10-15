@@ -7,6 +7,13 @@ export interface ClientOptions {
   fetchToken?: boolean;
   jsProof?: boolean;
   observe?: boolean;
+  /**
+   * When true, append a small "Built with form-honeypot-guard" credit link.
+   * Off by default. Class `fg-credit` (no inline styles). No network or tracking.
+   */
+  credit?: boolean;
+  /** Element or CSS selector to append the credit link into. Default: after the first guarded form. */
+  creditTarget?: HTMLElement | string | null;
 }
 export interface FormGuardApi {
   init(opts?: ClientOptions): FormGuardApi;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0 — 2026-10-15
+
+- Optional client `credit` / `creditTarget` on `init()` (and `data-form-guard`): when `credit: true`, appends a small CSP-safe link (`class="fg-credit"`, no inline styles). Off by default; no network or tracking.
+
+
 ## 1.1.0 — 2026-10-14
 
 - **Proof-of-work (Altcha-style, opt-in):** `pow: true | { maxnumber, require, field }` on server helpers; token endpoint returns a signed challenge; optional `form-honeypot-guard/runtime-pow` client add-on (privacy-friendly, no captcha vendor).

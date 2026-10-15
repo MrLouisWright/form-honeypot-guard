@@ -104,6 +104,22 @@ module.exports = __toCommonJS(client_exports);
     var list = (root || d).querySelectorAll(cfg.forms === "all" ? "form" : cfg.forms);
     for (var i = 0; i < list.length; i++) enhance2(list[i]);
   }
+  function placeCredit() {
+    if (!cfg.credit || !d) return;
+    if (d.querySelector("a.fg-credit")) return;
+    var a = d.createElement("a");
+    a.className = "fg-credit";
+    a.href = "https://louiswright.co.uk";
+    a.rel = "noopener";
+    a.textContent = "Built with form-honeypot-guard";
+    var t = cfg.creditTarget, el = typeof t === "string" ? d.querySelector(t) : t;
+    if (el && el.appendChild) el.appendChild(a);
+    else {
+      var f = d.querySelector(cfg.forms === "all" ? "form" : cfg.forms);
+      if (f) f.insertAdjacentElement("afterend", a);
+      else if (d.body) d.body.appendChild(a);
+    }
+  }
   function init2(o) {
     for (var k in o || {}) if (o[k] != null) cfg[k] = o[k];
     if (!tracking) {
@@ -125,6 +141,7 @@ module.exports = __toCommonJS(client_exports);
     if (cfg.observe && w.MutationObserver && !obs) (obs = new w.MutationObserver(function() {
       scan();
     })).observe(d.documentElement, { childList: true, subtree: true });
+    placeCredit();
     return api;
   }
   function formData2(form) {

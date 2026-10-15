@@ -321,7 +321,7 @@ The Vite plugin (`formGuard(options)`) takes the same options apart from `inline
 
 ### Client (`init(options)` or `data-form-guard='{…}'`)
 
-`forms`, `honeypot`, `token`, `js`, `signals`, `pow`, `tokenEndpoint`, `fetchToken` (`true`), `jsProof` (`true`), `observe` (`true`, enhances forms added later via MutationObserver). Helpers: `enhance(form)`, `formData(form)`, `json(form)`, `guardRef(el)`.
+`forms`, `honeypot`, `token`, `js`, `signals`, `pow`, `tokenEndpoint`, `fetchToken` (`true`), `jsProof` (`true`), `observe` (`true`, enhances forms added later via MutationObserver), `credit` (`false`), `creditTarget` (append the optional credit link into this element or selector). Helpers: `enhance(form)`, `formData(form)`, `json(form)`, `guardRef(el)`.
 
 When `pow` is enabled on the server, load the optional solver after the main runtime:
 
@@ -427,6 +427,22 @@ Then create a GitHub release from the new tag. `.github/workflows/release.yml` r
 ## Support
 
 If this project is useful to you, you can support its development with a donation: [Buy me a coffee](https://donate.stripe.com/aFa00lek3cvX4Ds2Fk9EI0b). It helps keep these tools maintained, documented and free for everyone.
+
+## Optional credit link
+
+MIT needs no attribution. If you want a small backlink near the form:
+
+```js
+init({ forms: 'form[data-guard]', credit: true, creditTarget: '#footer' });
+```
+
+Style it yourself (no inline styles are set):
+
+```css
+.fg-credit { font-size: 0.75rem; opacity: 0.65; }
+```
+
+Off by default; no network calls or tracking.
 
 ## Credit (optional)
 

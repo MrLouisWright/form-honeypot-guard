@@ -70,3 +70,19 @@ test('ESM client wrapper is SSR-safe', async () => {
   assert.doesNotThrow(() => c.guardRef(null));
   assert.throws(() => c.enhance({}), /browser DOM/);
 });
+
+test('credit defaults off; when on mounts a fixed link into creditTarget', async () => {
+  const { w, doc, ready } = dom(
+    '<form data-guard method="post"><input name="email"></form><div id="c"></div>',
+    {},
+  );
+  await ready;
+  assert.equal(doc.querySelector('.fg-credit'), null);
+  w.FormGuard.init({ credit: true, creditTarget: '#c' });
+  const a = doc.querySelector('#c a.fg-credit');
+  assert.ok(a);
+  assert.equal(a.getAttribute('href'), 'https://louiswright.co.uk');
+  assert.equal(a.getAttribute('rel'), 'noopener');
+  assert.equal(a.textContent, 'Built with form-honeypot-guard');
+  assert.equal(a.getAttribute('style'), null);
+});
