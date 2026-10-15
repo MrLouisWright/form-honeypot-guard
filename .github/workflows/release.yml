@@ -78,6 +78,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - if: steps.check.outputs.skip != 'true'
-        run: npm publish
+        run: npm ci && npm run build && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
