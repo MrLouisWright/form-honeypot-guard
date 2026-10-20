@@ -1,6 +1,6 @@
 {
   "name": "form-honeypot-guard",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Block form spam bots without a captcha: honeypot + signed timing tokens + JS proof + optional Altcha-style proof-of-work + rate limiting. Webpack 5 and Vite plugins, a <2 kB client, Express/Fastify/Next/SvelteKit/Remix/Astro helpers, and a React wrapper. Zero runtime dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",

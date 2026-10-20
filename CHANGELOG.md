@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 - 2026-10-20
+
+- Release workflow installs dependencies before publishing (the GitHub Packages publish previously failed).
+- No changes to the package code.
+
 ## 1.2.0 — 2026-10-15
 
 - Optional client `credit` / `creditTarget` on `init()` (and `data-form-guard`): when `credit: true`, appends a small CSP-safe link (`class="fg-credit"`, no inline styles). Off by default; no network or tracking.
